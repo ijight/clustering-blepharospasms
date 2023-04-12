@@ -93,16 +93,6 @@ def majority_partition(partition, TS, TIMESTEP, OVERLAP):
     TSFAKE = [*range(len(TS))]
     SEGMENTSFAKE = [TSFAKE[i:i+TIMESTEP] for i in range(0, len(TS)-TIMESTEP+1, TIMESTEP-OVERLAP)] #(from 0 to last possible timestep, in steps of len of timestep (remove overlap))
     occuranceTable = {i: [segmentNum for segmentNum in range(len(SEGMENTSFAKE)) if i in SEGMENTSFAKE[segmentNum]] for i in range(len(TS) - TRUNCATED) if any(i in seg for seg in SEGMENTSFAKE)}
-    
-    # print(occuranceTable)
-    # occuranceTable = {}
-    # for i in range(len(TS) - TRUNCATED) :
-    #     indices = []
-    #     for j, seg in enumerate(SEGMENTSFAKE):
-    #         if i in seg:
-    #             indices.append(j)
-    #     if indices:
-    #         occuranceTable[i] = indices
 
     majority_partition = {}
     # iterate over time steps
