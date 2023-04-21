@@ -127,3 +127,49 @@ def contrasting_colors(n_colors):
         colors[i] = (r, g, b)
 
     return colors
+
+# Hodam file
+def generate_similiarity_matrix_segment(segments):
+    # # segment y_filtered into consecutive non-overlapping intervals
+    # segments = [TS[i:i+TIMESTEP] for i in range(0, len(TS)-TIMESTEP+1, TIMESTEP-OVERLAP)]
+    # print(np.array(segments).shape)
+
+    # construct a visibility graph for each segment
+    graphs = [construct_visibilty_graph(segment) for segment in segments]
+    print(np.array(graphs).shape)
+
+    # compute feature vectors for each graph using degree centrality
+    feature_vectors = [np.array(list(nx.degree_centrality(graph).values())) for graph in graphs]
+    print(np.array(feature_vectors).shape)
+
+    # define distance matrix D for each segment using Euclidean distance
+    distance_matrices = []
+    for i in range(len(feature_vectors)):
+        D = np.zeros((len(feature_vectors), len(feature_vectors)))
+        for j in range(len(feature_vectors)):
+            D[i][j] = np.linalg.norm(feature_vectors[i] - feature_vectors[j])
+        distance_matrices.append(D)
+
+    # compute global distance matrix by averaging distances across all segments
+    global_distance_matrix = np.mean(distance_matrices, axis=0)
+    print(np.array(global_distance_matrix).shape)
+
+    # normalize global distance matrix between 0 and 1
+    normalized_distance_matrix = 1 - (global_distance_matrix - np.min(global_distance_matrix)) / (
+                np.max(global_distance_matrix) - np.min(global_distance_matrix))
+    print(np.array(normalized_distance_matrix).shape)
+
+    # construct weighted graph C using normalized distance matrix as adjacency matrix
+    # threshold = 0.0  # set a threshold to remove weak edges
+    # C = nx.from_numpy_array(normalized_distance_matrix * (normalized_distance_matrix >= threshold))
+
+    C = nx.from_numpy_array(normalized_distance_matrix)
+
+    # Set edge weights to similarity values
+    for u, v, d in C.edges(data=True):
+        d['weight'] = normalized_distance_matrix[u][v]
+
+    # Remove self-loops
+    C.remove_edges_from(nx.selfloop_edges(C))
+
+    return C
