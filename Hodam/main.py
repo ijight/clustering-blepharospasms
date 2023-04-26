@@ -19,7 +19,7 @@ for each in os.listdir(datadir):
     singlechannel_timeseries.append(list(scipy.io.loadmat(datadir+each)["X"][0]))
 
 TIMESTEP = 150
-OVERLAP = 100
+OVERLAP = 10
 numSubject = 5
 
 segments = []
